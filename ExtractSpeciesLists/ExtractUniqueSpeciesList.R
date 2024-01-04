@@ -15,7 +15,7 @@ library(stringr)
 library(janitor) #remove_empty
 
 base.dir <- "S:/Projects/NPCA/_Year2/Data/Intermediate/ExtractSpeciesList/SpeciesList/" # UPDATE 
-out.csv <- "S:/Projects/NPCA/_Year2/Data/Intermediate/ExtractSpeciesList/GreaterYellowstone/GreaterYellowstone_SpsList.csv" # UPDATE 
+out.csv <- "S:/Projects/NPCA/_Year2/Data/Intermediate/ExtractSpeciesList/NorthCascades/NorthCascades_SpsList.csv" # UPDATE 
 cutecodes <- read.csv("S:/Projects/_Workspaces/Hannah_Hyatt/MoBI_Gov_Relations/SpeciesLists/CuteCodeCrosswalk.csv")
 
 # Import dbf files #
