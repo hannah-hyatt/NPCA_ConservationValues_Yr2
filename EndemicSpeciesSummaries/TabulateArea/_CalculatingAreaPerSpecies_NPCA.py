@@ -34,13 +34,13 @@ arcpy.env.overwriteOutput = True
 
 # Set Variables
 Boundary = r"S:\Projects\NPCA\Data\Intermediate\GAP_Analysis.gdb\StudyAreas_PADUS_CONUS_AnalysisLayerV2" # UPDATE
-tablepath = r"S:\Projects\NPCA\_Year2\Data\Intermediate\EndemicSpeciesSummaries\GreaterYellowstone_IntTbls" # UPDATE
+tablepath = r"S:\Projects\NPCA\_Year2\Data\Intermediate\EndemicSpeciesSummaries\GreaterEverglades_IntTbls" # UPDATE
 outTable = r"MoBIshms_TabAreaMerge_GreaterEverglades" # UPDATE
 Boundary_field = "NPCA_Status_GAP_StudyArea" # UPDATE
 
 # Create Cutecode List
 cutecodelist = []
-cutecode_file = open(r'S:\Projects\NPCA\_Year2\Data\Intermediate\ExtractSpeciesList\GreaterYellowstone\GreaterYellowstone_SpsList.txt', 'r') # UPDATE IF NEEDED
+cutecode_file = open(r'S:\Projects\NPCA\_Year2\Data\Intermediate\ExtractSpeciesList\GreaterEverglades\GreaterEverglades_SpsList.txt', 'r') # UPDATE IF NEEDED
 for word in cutecode_file:
     word = word.rstrip("\n") # this removes the spaces after each word
     cutecodelist.append(word)
@@ -85,5 +85,5 @@ cutecode_crosswalk = r"S:\Projects\_Workspaces\Hannah_Hyatt\MoBI_Gov_Relations\S
 arcpy.management.JoinField(Areas_merged, "cutecode", cutecode_crosswalk, "cutecode", "Scientific_Name;Common_Name;Rounded_GRank;ESA_Status")
 current_datetime = datetime.datetime.now()
 timestamp = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-print("Script complete at: {timestamp}")
+print(f"Script started at: {timestamp}")
 
