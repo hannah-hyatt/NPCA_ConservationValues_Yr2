@@ -74,7 +74,8 @@ for i in range(len(cutecodelist)):
         print("model doesn't overlap")
 
 # Merge all output dbfs
-env.workspace = tablepath
+species_summaries_gdb = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb"
+env.workspace = species_summaries_gdb
 listTable = arcpy.ListTables()
 Areas_merged = outTable
 arcpy.Merge_management(listTable, Areas_merged)

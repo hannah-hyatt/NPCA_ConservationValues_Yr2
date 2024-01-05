@@ -14,7 +14,7 @@ options(scipen=999) # don't use scientific notation
 
 setwd("S:/Projects/NPCA/_Year2/Workspace/Hannah_Ceasar/NPCA_ConservationValues_Yr2/EndemicSpeciesSummaries/2_PADUS_SpeciesSummaries")
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/SpeciesSummaries_yr2.gdb/MoBIshms_TabAreaMerge_GreaterYellowstone" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/MoBIshms_TabAreaMerge_GreaterYellowstone" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
