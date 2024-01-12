@@ -90,7 +90,7 @@ for(i in 1:length(lstStudyAreas)){
     StudyAreaSpecies_subset3$GAPstatus[StudyAreaSpecies_subset3$GAPstatus == "GAPUnprotected"] <- "Unprotected"
     StudyAreaSpecies_subset3$GAPstatus <- factor(StudyAreaSpecies_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
     
-    p <- StudyAreaSpecies_subset3 %>%
+    StudyAreaSpecies_subset3 %>%
       ggplot(aes(x = reorder(axislable, TotalPosPercent),
                  y = PercentArea2,
                  fill = GAPstatus)) +
@@ -104,7 +104,7 @@ for(i in 1:length(lstStudyAreas)){
       theme_minimal() +
       #theme(panel.background = element_rect(fill = "transparent"), panel.grid = element_blank(),legend.position = "bottom")
       #theme(panel.background = element_rect(fill = "transparent"), legend.position = "bottom")
-      theme(panel.grid = element_blank(),legend.position = "bottom")
+      theme(panel.grid = element_blank(),legend.position = "bottom", legend.title = element_blank(), axis.title = element_blank())
   }
   }
 ggsave(paste0("PADUS Species Summary - ", lstStudyAreas[i],".png"), plot = p, path = "Outputs/", bg = "transparent",dpi = 300)
