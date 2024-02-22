@@ -9,7 +9,7 @@ library(arcgisbinding)
 arc.check_product()
 options(scipen=999) # don't use scientific notation
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_YellowstoneHighestConVal_GAPsts" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_Everglades10pctHighestConVal_GAPsts" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
@@ -36,22 +36,22 @@ StudyArea_subset2$ymin = c(0, head(StudyArea_subset2$ymax, n=-1)) #sets bottom o
 p <- StudyArea_subset2 %>%
   ggplot (aes(x=2, ymax=ymax,ymin=ymin, xmax=4, xmin=3, fill = GAPstatus))+
   geom_rect()+
-  ggtitle("Greater Yellowstone") +
+  ggtitle("Greater Everglades") +
   coord_polar(theta = "y")+ #makes plot circular
   scale_fill_manual(values=c("#b1b1b1","#bed5cf","#659fb5","#869447","#27613b"))+
   theme_void()+ #punches hole in donut
   theme(legend.position = "none", legend.title = element_blank(),plot.title.position = "plot")+
   xlim(1,4) #sets width of donut
 #write.csv(StudyArea_subset2, "S:/Projects/NPCA/MapExports/Draft/EsriMapGallery/Data/HighestConVal_GAPsts_SouthernApp.csv")
-
-ggsave(paste0("Yellowstone_HighestConVal_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
+plot(p)
+ggsave(paste0("Everglades_HighestConVal_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
 
 
 ##----------------------------------------------------------------------------------------------------------------------#
 ## Donut charts based on PADUS Management fields - simplified 
 
 
-inputTabAreaManaged <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_YellowstoneHighestConVal_MANGsts"
+inputTabAreaManaged <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_Everglades10pctHighestConVal_MANGsts"
 inputTabAreaManaged <- arc.open(inputTabAreaManaged)
 inputTabAreaManaged <- arc.select(inputTabAreaManaged)
 inputTabAreaManaged <- as.data.frame(inputTabAreaManaged)
@@ -83,9 +83,23 @@ StudyArea_subset2$ymin = c(0, head(StudyArea_subset2$ymax, n=-1)) #sets bottom o
 p <- StudyArea_subset2 %>%
   ggplot (aes(x=2, ymax=ymax,ymin=ymin, xmax=4, xmin=3, fill = Mang_NS))+
   geom_rect()+
-  ggtitle("Greater Yellowstone") +
+  ggtitle("Greater Everglades") +
   coord_polar(theta = "y")+ #makes plot circular
   #scale_y_reverse()+
+  # scale_fill_manual(values=c("Unmanaged" = "#B1B1B1",
+  #                            "UNK" = "#7F7F7F", 
+  #                            "PVT" = "#6a3d9a", 
+  #                            "TRIB" = "#b15928",
+  #                            "USFS" = "#1F601A",
+  #                            "NPS" = "#3BB432",
+  #                            "STAT" = "#ffff99", 
+  #                            "LOC" = "#e31a1c", 
+  #                            "FED" = "#fb9a99",
+  #                            "DOE" = "#b2df8a",
+  #                            "DOD" = "#1f78b4", 
+  #                            "NGO" = "#ff7f00", 
+  #                            "BLM" = "#a6cee3",
+  #                            "FWS" = "#fdbf6f"))+
   scale_fill_manual(values=c("Unmanaged" = "#B1B1B1",
                              "UNK" = "#7F7F7F", 
                              "PVT" = "#6a3d9a", 
@@ -103,5 +117,6 @@ p <- StudyArea_subset2 %>%
   theme_void()+ #punches hole in donut
   theme(legend.position = "none", legend.title = element_blank(),plot.title.position = "plot")+
   xlim(1,4) #sets width of donut
-ggsave(paste0("HighestConVal_Mangsts.png"), plot = p, bg = "transparent",dpi = 300)
+plot(p)
+ggsave(paste0("GreaterEverglades_HighestConVal_Mangsts.png"), plot = p, bg = "transparent",dpi = 300)
 #write.csv(StudyArea_subset2, "S:/Projects/NPCA/MapExports/Draft/EsriMapGallery/Data/HighestConVal_Mangsts_SouthernApp.csv")
