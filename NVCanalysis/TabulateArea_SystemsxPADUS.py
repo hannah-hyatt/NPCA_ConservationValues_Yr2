@@ -20,17 +20,17 @@ arcpy.env.overwriteOutput = True
 
 ##set variables
 AnalysisLayer = r"S:\Projects\NPCA\Data\Intermediate\GAP_Analysis.gdb\StudyAreas_PADUS_CONUS_AnalysisLayerV2"
-NVCgroups = r"S:\Projects\Ecology\GroupMap_v0pt9\Symbology\NVCmap_symbology\IVC_v0p9.gdb\NVC_Groups_v0p9_RemovedPixels_16bitunsig"
-TabAreaGAP_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_NVCgrps_GAPsts"
-TabAreaMang_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_NVCgrps_Mangsts"
+Systems = r"S:\Projects\_Workspaces\Hannah_Hyatt\ForestEndowment\Data\Intermediate.gdb\IUCNecosystems_CONUS"
+TabAreaGAP_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_GYE_Systems_GAPsts"
+TabAreaMang_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_GYE_Systems_Mangsts"
 print ("variables set")
 
 ## Tabulate area of NVC groups found within and outside of protected lands within and outside of study areas
 print("1 - Working on Tabulate area for Protected Areas")
-arcpy.sa.TabulateArea(AnalysisLayer, "NPCA_Status_GAP_StudyArea", NVCgroups, "IVC_NAME", TabAreaGAP_out, NVCgroups, "CLASSES_AS_ROWS")
+arcpy.sa.TabulateArea(AnalysisLayer, "NPCA_Status_GAP_StudyArea", Systems, "NatureServ", TabAreaGAP_out, Systems, "CLASSES_AS_ROWS")
 
 ## Tabulate Area of NVC groups found within/outside managed lands and within/outside of study areas
 print("2 - Working on Tabulate area for management status")
-arcpy.sa.TabulateArea(AnalysisLayer, "NPCA_Status_Mang_StudyArea", NVCgroups, "IVC_NAME", TabAreaMang_out, NVCgroups, "CLASSES_AS_ROWS")
+arcpy.sa.TabulateArea(AnalysisLayer, "NPCA_Status_Mang_StudyArea", Systems, "NatureServ", TabAreaMang_out, Systems, "CLASSES_AS_ROWS")
 
 print ("Complete")

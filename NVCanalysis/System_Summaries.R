@@ -8,15 +8,15 @@ library(arcgisbinding)
 arc.check_product()
 options(scipen=999) # don't use scientific notation
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_NVCgrps_GAPsts" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_GYE_Systems_GAPsts" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
 
-inputTabAreaManaged <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_NVCgrps_Mangsts"
-inputTabAreaManaged <- arc.open(inputTabAreaManaged)
-inputTabAreaManaged <- arc.select(inputTabAreaManaged)
-inputTabAreaManaged <- as.data.frame(inputTabAreaManaged)
+# inputTabAreaManaged <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_GYE_Systems_Mangsts"
+# inputTabAreaManaged <- arc.open(inputTabAreaManaged)
+# inputTabAreaManaged <- arc.select(inputTabAreaManaged)
+# inputTabAreaManaged <- as.data.frame(inputTabAreaManaged)
 
 inputRaster <- "S:/Projects/NPCA/Data/Intermediate/NationalAnalysis.gdb/Landfire_EVT_2020_IVC_join_2023" #
 inputRaster <- arc.open(inputRaster)
@@ -41,12 +41,15 @@ inputTabAreaGAP$GAPstatus <- sub(".*?(\\d+)", "\\1", inputTabAreaGAP$NPCA_Status
 inputTabAreaGAP$GAPstatus <- as.integer(substring(inputTabAreaGAP$GAPstatus, 1, 1))
 
 # this enables verification of Naturalness in a later step
-#inputTabAreaGAP <- merge(inputTabAreaGAP, inputRaster[c("IVC_NAME","ROUNDED_G_RANK", "Naturalnes")], by.x="IVC_NAME", by.y="IVC_NAME") 
+inputTabAreaGAP <- merge(inputTabAreaGAP, inputRaster[c("NatureServ","RLE_FINAL", "Naturalnes")], by.x="NatureServ", by.y="NatureServ") 
 
 # subset by G Rank
 #inputTabAreaGAP$G_RANK <- substr(inputTabAreaGAP$ROUNDED_G_RANK, 1, 2)
 #inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$G_RANK %in% c("G1", "G2", "G3","G4")), ]
 
+# subset by RLE status
+inputTabAreaGAP$RLE_FINAL <- substr(inputTabAreaGAP$RLE_FINAL, 1, 2)
+inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$RLE_FINAL %in% c("CR", "EN", "VU")), ]
 
 lstStudyAreas <- unique(inputTabAreaGAP$StudyArea)
 
@@ -55,38 +58,36 @@ for(i in 1:length(lstStudyAreas)){
   print(paste("working on ", lstStudyAreas[i], sep=""))
   StudyArea_subset <- inputTabAreaGAP[which(inputTabAreaGAP$StudyArea==lstStudyAreas[i]),]
   
-  #lstGroups_subset <- unique(StudyArea_subset[which(StudyArea_subset$Naturalnes=="Natural"),"IVC_Name"] )
-  lstGroups_subset <- unique(StudyArea_subset$IVC_Name)
+  lstGroups_subset <- unique(StudyArea_subset[which(StudyArea_subset$Naturalnes=="Natural"),"NatureServ"] )
   
   # create an empty data frame
   StudyAreaGroup_subsetComb <- inputTabAreaGAP[0,]
   
   for(j in 1:length(lstGroups_subset)){  #
     print(paste("working on ", lstGroups_subset[j], sep=""))
-    StudyAreaGroup_subset <- inputTabAreaGAP[which(inputTabAreaGAP$IVC_Name==lstGroups_subset[j]),]
+    StudyAreaGroup_subset <- inputTabAreaGAP[which(inputTabAreaGAP$NatureServ==lstGroups_subset[j]),]
     StudyAreaGroup_subset[which(StudyAreaGroup_subset$StudyArea!=lstStudyAreas[i]),"StudyArea"] <- NA
     
     StudyAreaGroup_subsetComb <- rbind(StudyAreaGroup_subsetComb, StudyAreaGroup_subset)
     
     StudyAreaGroup_subset1 <- StudyAreaGroup_subsetComb %>%
-      group_by( StudyArea, Protected, GAPstatus, IVC_Name) %>% #NPCA_status_GAP_StudyArea,
+      group_by( StudyArea, Protected, GAPstatus, NatureServ, RLE_FINAL) %>% #NPCA_status_GAP_StudyArea,
       summarise(TotalArea = sum(Area)) %>% 
       ungroup()
     
     StudyAreaGroup_subset2 <- StudyAreaGroup_subset1 %>%
-      group_by(IVC_Name) %>%
+      group_by(NatureServ) %>%
       mutate(PercentArea =   (TotalArea / sum(TotalArea)*100) ) %>%
       mutate(TotalArea2 = if_else(is.na(StudyArea), -TotalArea, TotalArea)) %>%
       mutate(PercentArea2 = if_else(is.na(StudyArea), -PercentArea, PercentArea))
     
     StudyAreaGroup_subset3 <- StudyAreaGroup_subset2 %>%
-      group_by(IVC_Name) %>%
-      mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>5]))
+      group_by(NatureServ) %>%
+      mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
     StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>0),]
     
-    ##StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_NAME, " (", StudyAreaGroup_subset3$G_RANK, ")") 
-    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name) 
+    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$NatureServ, " (", StudyAreaGroup_subset3$RLE_FINAL, ")") 
     StudyAreaGroup_subset3$GAPstatus <- paste0("GAP",StudyAreaGroup_subset3$GAPstatus)
     StudyAreaGroup_subset3$GAPstatus[which(StudyAreaGroup_subset3$GAPstatus=="GAPNA")] <- "Unprotected"
     StudyAreaGroup_subset3$GAPstatus <- factor(StudyAreaGroup_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
