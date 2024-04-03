@@ -49,7 +49,7 @@ inputTabAreaGAP <- merge(inputTabAreaGAP, inputRaster[c("NatureServ","RLE_FINAL"
 
 # subset by RLE status
 inputTabAreaGAP$RLE_FINAL <- substr(inputTabAreaGAP$RLE_FINAL, 1, 2)
-inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$RLE_FINAL %in% c("CR", "EN", "VU")), ]
+#inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$RLE_FINAL %in% c("CR", "EN", "VU")), ]
 
 lstStudyAreas <- unique(inputTabAreaGAP$StudyArea)
 
@@ -85,7 +85,7 @@ for(i in 1:length(lstStudyAreas)){
       group_by(NatureServ) %>%
       mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
-    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>0),]
+    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>10),]
     
     StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$NatureServ, " (", StudyAreaGroup_subset3$RLE_FINAL, ")") 
     StudyAreaGroup_subset3$GAPstatus <- paste0("GAP",StudyAreaGroup_subset3$GAPstatus)

@@ -14,7 +14,7 @@ options(scipen=999) # don't use scientific notation
 
 setwd("S:/Projects/NPCA/_Year2/Workspace/Hannah_Ceasar/NPCA_ConservationValues_Yr2/EndemicSpeciesSummaries/2_PADUS_SpeciesSummaries")
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/MoBIshms_TabAreaMerge_GreaterYellowstone" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/MoBIshms_TabAreaMerge_GreaterEverglades_v2" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
@@ -41,7 +41,7 @@ inputTabAreaGAP$GAPstatus <- sub(",.*", "", inputTabAreaGAP$GAPstatus)
 ## load in unique lists
 
 #lstSpecies <- unique(inputTabAreaGAP[which(inputTabAreaGAP$Highlight_sps=="TRUE"),"Scientific"])
-lstSpecies <- unique(inputTabAreaGAP$Scientific)
+lstSpecies <- unique(inputTabAreaGAP$Scientific_Name)
 lstStudyAreas <- unique(inputTabAreaGAP$StudyArea)
 
 
@@ -56,36 +56,36 @@ for(i in 1:length(lstStudyAreas)){
   #lstSpecies_subset <- unique(StudyArea_subset[which(StudyArea_subset$Highlight_sps=="TRUE"),"Scientific"] )
   
   ## Select all species
-  lstSpecies_subset <- unique(StudyArea_subset$Scientific)
+  lstSpecies_subset <- unique(StudyArea_subset$Scientific_Name)
   
   # create an empty data frame
   StudyAreaSpecies_subsetComb <- inputTabAreaGAP[0,]
   
   for(j in 1:length(lstSpecies_subset)){  #
     print(paste("working on ", lstSpecies[j], sep=""))
-    StudyAreaSpecies_subset <- inputTabAreaGAP[which(inputTabAreaGAP$Scientific==lstSpecies_subset[j]),]
+    StudyAreaSpecies_subset <- inputTabAreaGAP[which(inputTabAreaGAP$Scientific_Name==lstSpecies_subset[j]),]
     StudyAreaSpecies_subset[which(StudyAreaSpecies_subset$StudyArea!=lstStudyAreas[i]),"StudyArea"] <- NA
     
     StudyAreaSpecies_subsetComb <- rbind(StudyAreaSpecies_subsetComb, StudyAreaSpecies_subset)
     
     StudyAreaSpecies_subset1 <- StudyAreaSpecies_subsetComb %>%
-      group_by( StudyArea, GAPstatus, Scientific,Rounded_GR) %>% #NPCA_status_GAP_StudyArea,
+      group_by( StudyArea, GAPstatus, Scientific_Name,Rounded_GRank) %>% #NPCA_status_GAP_StudyArea,
       summarise(TotalArea = sum(VALUE_1)) %>% 
       ungroup()
     
     StudyAreaSpecies_subset2 <- StudyAreaSpecies_subset1 %>%
-      group_by(Scientific) %>%
+      group_by(Scientific_Name) %>%
       mutate(PercentArea =   (TotalArea / sum(TotalArea)*100) ) %>%
       mutate(TotalArea2 = if_else(is.na(StudyArea), -TotalArea, TotalArea)) %>%
       mutate(PercentArea2 = if_else(is.na(StudyArea), -PercentArea, PercentArea))
     
     StudyAreaSpecies_subset3 <- StudyAreaSpecies_subset2 %>%
-      group_by(Scientific) %>%
+      group_by(Scientific_Name) %>%
       mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
-    StudyAreaSpecies_subset3 <- StudyAreaSpecies_subset3[which(StudyAreaSpecies_subset3$TotalPosPercent>10),]
+    StudyAreaSpecies_subset3 <- StudyAreaSpecies_subset3[which(StudyAreaSpecies_subset3$TotalPosPercent>99.9),]
 
-    StudyAreaSpecies_subset3$axislable <- paste0(StudyAreaSpecies_subset3$Scientific, " (", StudyAreaSpecies_subset3$Rounded_GR, ")") 
+    StudyAreaSpecies_subset3$axislable <- paste0(StudyAreaSpecies_subset3$Scientific_Name, " (", StudyAreaSpecies_subset3$Rounded_GRank, ")") 
     StudyAreaSpecies_subset3$GAPstatus <- paste0("GAP",StudyAreaSpecies_subset3$GAPstatus)
     StudyAreaSpecies_subset3$GAPstatus[StudyAreaSpecies_subset3$GAPstatus == "GAPUnprotected"] <- "Unprotected"
     StudyAreaSpecies_subset3$GAPstatus <- factor(StudyAreaSpecies_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
@@ -108,6 +108,7 @@ for(i in 1:length(lstStudyAreas)){
   }
   }
 ggsave(paste0("PADUS Species Summary - ", lstStudyAreas[i],".png"), plot = p, path = "Outputs/", bg = "transparent",dpi = 300)
+write.csv(StudyAreaSpecies_subset3, "S:/Projects/NPCA/_Year2/Data/Intermediate/ExtractSpeciesList/GreaterEverglades/GreaterEverglades_SHMs10pctOverlap.csv")
 
 #endemics <- unique(StudyAreaSpecies_subset3$Scientific_Name) %>% as.data.frame()
 #write.csv(endemics, "S:/Projects/NPCA/Data/SpeciesLists/hypergrid_spslist/SouthernAppalachians_Endemics.csv")

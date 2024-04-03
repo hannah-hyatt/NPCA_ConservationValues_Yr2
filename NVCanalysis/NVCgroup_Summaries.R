@@ -41,11 +41,15 @@ inputTabAreaGAP$GAPstatus <- sub(".*?(\\d+)", "\\1", inputTabAreaGAP$NPCA_Status
 inputTabAreaGAP$GAPstatus <- as.integer(substring(inputTabAreaGAP$GAPstatus, 1, 1))
 
 # this enables verification of Naturalness in a later step
-#inputTabAreaGAP <- merge(inputTabAreaGAP, inputRaster[c("IVC_NAME","ROUNDED_G_RANK", "Naturalnes")], by.x="IVC_NAME", by.y="IVC_NAME") 
+inputTabAreaGAP <- left_join(inputTabAreaGAP, 
+                             select(inputRaster, IVC_NAME, ROUNDED_G_RANK, Naturalnes), 
+                             by = c("IVC_Name" = "IVC_NAME"),
+                             suffix = c("_x", "_y"),
+                             relationship = "many-to-many")
 
 # subset by G Rank
-#inputTabAreaGAP$G_RANK <- substr(inputTabAreaGAP$ROUNDED_G_RANK, 1, 2)
-#inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$G_RANK %in% c("G1", "G2", "G3","G4")), ]
+#inputTabAreaGAP$G_RANK <- substr(inputTabAreaGAP$ROUNDED_G_RANK_x, 1, 2)
+#inputTabAreaGAP <- inputTabAreaGAP[which(inputTabAreaGAP$G_RANK %in% c("G1", "G2", "G3","G4", "G5")), ]
 
 
 lstStudyAreas <- unique(inputTabAreaGAP$StudyArea)
@@ -69,7 +73,7 @@ for(i in 1:length(lstStudyAreas)){
     StudyAreaGroup_subsetComb <- rbind(StudyAreaGroup_subsetComb, StudyAreaGroup_subset)
     
     StudyAreaGroup_subset1 <- StudyAreaGroup_subsetComb %>%
-      group_by( StudyArea, Protected, GAPstatus, IVC_Name) %>% #NPCA_status_GAP_StudyArea,
+      group_by( StudyArea, Protected, GAPstatus, IVC_Name, ROUNDED_G_RANK) %>% #NPCA_status_GAP_StudyArea,
       summarise(TotalArea = sum(Area)) %>% 
       ungroup()
     
@@ -81,12 +85,12 @@ for(i in 1:length(lstStudyAreas)){
     
     StudyAreaGroup_subset3 <- StudyAreaGroup_subset2 %>%
       group_by(IVC_Name) %>%
-      mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>5]))
+      mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
-    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>0),]
+    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>5),]
     
-    ##StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_NAME, " (", StudyAreaGroup_subset3$G_RANK, ")") 
-    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name) 
+    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name, " (", StudyAreaGroup_subset3$ROUNDED_G_RANK, ")") 
+    #StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name) 
     StudyAreaGroup_subset3$GAPstatus <- paste0("GAP",StudyAreaGroup_subset3$GAPstatus)
     StudyAreaGroup_subset3$GAPstatus[which(StudyAreaGroup_subset3$GAPstatus=="GAPNA")] <- "Unprotected"
     StudyAreaGroup_subset3$GAPstatus <- factor(StudyAreaGroup_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
@@ -111,6 +115,8 @@ for(i in 1:length(lstStudyAreas)){
             plot.title.position = "plot")
   }
 }
+plot(p)
+ggsave(paste0("NorthCascades_IVCgroups_top5pct_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
 
 #-----------------------------------------------------------------------
 ### Repeat the above steps for results summarized by Manager Name
