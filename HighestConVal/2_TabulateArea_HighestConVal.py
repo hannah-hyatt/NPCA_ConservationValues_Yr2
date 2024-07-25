@@ -24,10 +24,10 @@ arcpy.env.overwriteOutput = True
 
 #set variables
 AnalysisLayer = r"S:\Projects\NPCA\Data\Intermediate\GAP_Analysis.gdb\StudyAreas_PADUS_CONUS_AnalysisLayerV2"
-HighestConVal = r"S:\Projects\NPCA\_Year2\Data\Intermediate\ConservationValue_MaskedStudyAreas\HighestConVal_top10pct_GreaterEverglades.tif"
+HighestConVal = r"S:\Projects\NPCA\_Year2\Data\Intermediate\ConservationValue_MaskedStudyAreas\HighestConVal_top10pct_NorthCascades.tif"
 IUCN_CONUS = r"S:\Projects\_Workspaces\Hannah_Hyatt\ForestEndowment\Data\Intermediate.gdb\IUCNecosystems_CONUS"
-TabAreaGAP_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_Everglades10pctHighestConVal_GAPsts"
-TabAreaMang_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_Everglades10pctHighestConVal_MANGsts"
+TabAreaGAP_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_NorthCascades10pctHighestConVal_GAPsts"
+TabAreaMang_out = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb\TabArea_NorthCascades10pctHighestConVal_MANGsts"
 print ("variables set")
 
 ## Tabulate Area of PADUS managers within all study areas

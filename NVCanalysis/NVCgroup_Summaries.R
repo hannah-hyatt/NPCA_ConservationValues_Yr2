@@ -87,7 +87,7 @@ for(i in 1:length(lstStudyAreas)){
       group_by(IVC_Name) %>%
       mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
-    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>5),]
+    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>10),]
     
     StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name, " (", StudyAreaGroup_subset3$ROUNDED_G_RANK, ")") 
     #StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name) 
@@ -117,6 +117,7 @@ for(i in 1:length(lstStudyAreas)){
 }
 plot(p)
 ggsave(paste0("NorthCascades_IVCgroups_top5pct_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
+write.csv(StudyAreaGroup_subset3, "S:/Projects/NPCA/_Year2/Data/Intermediate/GreaterEverglades/NVCgroups_10pctOverlap_GreaterEverglades.csv")
 
 #-----------------------------------------------------------------------
 ### Repeat the above steps for results summarized by Manager Name
