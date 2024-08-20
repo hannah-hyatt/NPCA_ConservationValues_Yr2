@@ -18,8 +18,8 @@ arcpy.CheckOutExtension("Spatial")
 
 # Variables and Environments
 raster_workspace = r"S:\Data\NatureServe\Species_Distributions\MoBI_HabitatModels\hypergrids\hypergrid_LA.gdb"
-boundary = r"S:\Projects\NPCA\Data\Final\StudyAreas_fin.gdb\NorthCascades" # UPDATE - area of interest
-outTemp = r"S:\Projects\NPCA\_Year2\Pro\Temp.gdb" # UPDATE - geodatabase
+boundary = r"S:\Projects\NPCA\_Year2\Pro\DeepDives\GreaterEverglades\GreaterEverglades.gdb\PADUS_BICYandEVER" # UPDATE - area of interest
+outTemp = r"S:\Projects\NPCA\_Year2\Pro\Temp.gdb" # UPDATE - scratch geodatabase
 outWS = r"S:\Projects\NPCA\_Year2\Data\Intermediate\ExtractSpeciesList\SpeciesList" # UPDATE - folder
 arcpy.env.overwriteOutput = True
 arcpy.env.scratchWorkspace = outTemp

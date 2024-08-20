@@ -33,14 +33,14 @@ env.workspace = WS
 arcpy.env.overwriteOutput = True
 
 # Set Variables
-Boundary = r"S:\Projects\NPCA\Data\Intermediate\GAP_Analysis.gdb\StudyAreas_PADUS_CONUS_AnalysisLayerV2" # UPDATE
-tablepath = r"S:\Projects\NPCA\_Year2\Data\Intermediate\EndemicSpeciesSummaries\GreaterYellowstone_IntTbls" # UPDATE
-outTable = r"MoBIshms_TabAreaMerge_GreaterEverglades" # UPDATE
-Boundary_field = "NPCA_Status_GAP_StudyArea" # UPDATE
+Boundary = r"S:\Projects\NPCA\Data\Intermediate\GAP_Analysis.gdb\StudyAreas_PADUS_CONUS_AnalysisLayerV2" # UPDATE with analysis layer
+tablepath = r"S:\Projects\NPCA\_Year2\Data\Intermediate\EndemicSpeciesSummaries\NorthCascades_IntTbls" # UPDATE with intermediate table location
+outTable = r"MoBIshms_TabAreaMerge_NorthCascades" # UPDATE final output name
+Boundary_field = "NPCA_Status_GAP_StudyArea" # UPDATE field in the analysis layer to tabulate area by
 
 # Create Cutecode List
 cutecodelist = []
-cutecode_file = open(r'S:\Projects\NPCA\_Year2\Data\Intermediate\ExtractSpeciesList\GreaterYellowstone\GreaterYellowstone_SpsList.txt', 'r') # UPDATE IF NEEDED
+cutecode_file = open(r'S:\Projects\NPCA\_Year2\Data\Intermediate\ExtractSpeciesList\NorthCascades\NorthCascades_SpsList.txt', 'r') # UPDATE if you want to use a subset of species
 for word in cutecode_file:
     word = word.rstrip("\n") # this removes the spaces after each word
     cutecodelist.append(word)
@@ -74,7 +74,8 @@ for i in range(len(cutecodelist)):
         print("model doesn't overlap")
 
 # Merge all output dbfs
-env.workspace = tablepath
+species_summaries_gdb = r"S:\Projects\NPCA\_Year2\Data\Intermediate\TabulateAreaTables_yr2.gdb" #UPDATE - location of final tabulate area table
+env.workspace = species_summaries_gdb
 listTable = arcpy.ListTables()
 Areas_merged = outTable
 arcpy.Merge_management(listTable, Areas_merged)
@@ -85,5 +86,5 @@ cutecode_crosswalk = r"S:\Projects\_Workspaces\Hannah_Hyatt\MoBI_Gov_Relations\S
 arcpy.management.JoinField(Areas_merged, "cutecode", cutecode_crosswalk, "cutecode", "Scientific_Name;Common_Name;Rounded_GRank;ESA_Status")
 current_datetime = datetime.datetime.now()
 timestamp = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
-print("Script complete at: {timestamp}")
+print(f"Script started at: {timestamp}")
 
