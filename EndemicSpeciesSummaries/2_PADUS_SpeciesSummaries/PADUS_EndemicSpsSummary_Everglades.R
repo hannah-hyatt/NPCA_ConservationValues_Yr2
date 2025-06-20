@@ -14,7 +14,7 @@ options(scipen=999) # don't use scientific notation
 
 setwd("S:/Projects/NPCA/_Year2/Workspace/Hannah_Ceasar/NPCA_ConservationValues_Yr2/EndemicSpeciesSummaries/2_PADUS_SpeciesSummaries")
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/MoBIshms_TabAreaMerge_GreaterEverglades" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/MoBIshms_TabAreaMerge_NorthCascades" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
@@ -63,10 +63,10 @@ for(i in 1:length(lstStudyAreas)){
   #lstSpecies_subset <- unique(StudyArea_subset[which(StudyArea_subset$Imperiled=="Imperiled"),"Scientific"] )
   
   ## Select a subset of the species - simplifies the bar chart output for presentation 
-  lstSpecies_subset <- unique(StudyArea_subset[which(StudyArea_subset$Highlight.Species=="Yes"),"Scientific_Name"] )
+  #lstSpecies_subset <- unique(StudyArea_subset[which(StudyArea_subset$Highlight.Species=="Yes"),"Scientific_Name"] )
   
   ## Select all species
-  #lstSpecies_subset <- unique(StudyArea_subset$Scientific_Name)
+  lstSpecies_subset <- unique(StudyArea_subset$Scientific_Name)
   
   # create an empty data frame
   StudyAreaSpecies_subsetComb <- inputTabAreaGAP[0,]
@@ -100,7 +100,7 @@ for(i in 1:length(lstStudyAreas)){
     StudyAreaSpecies_subset3$GAPstatus[StudyAreaSpecies_subset3$GAPstatus == "GAPUnprotected"] <- "Unprotected"
     StudyAreaSpecies_subset3$GAPstatus <- factor(StudyAreaSpecies_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
     
-    p <- StudyAreaSpecies_subset3 %>%
+    p<- StudyAreaSpecies_subset3 %>%
       ggplot(aes(x = reorder(axislable, TotalPosPercent),
                  y = PercentArea2,
                  fill = GAPstatus)) +
@@ -117,7 +117,7 @@ for(i in 1:length(lstStudyAreas)){
       theme(panel.grid = element_blank(),legend.position = "bottom", legend.title = element_blank(), axis.title = element_blank())
   }
   }
-ggsave(paste0("PADUS Species Summary - ", lstStudyAreas[i],"V3.png"), plot = p, path = "Outputs/", bg = "transparent",dpi = 300)
+ggsave(paste0("PADUS Species Summary - ", lstStudyAreas[i],".png"), plot = p, path = "Outputs/", bg = "transparent",dpi = 300)
 write.csv(StudyAreaSpecies_subset3, "S:/Projects/NPCA/_Year2/Data/Intermediate/ExtractSpeciesList/GreaterEverglades/GreaterEverglades_SHMs_NPSGAP12_Overlap.csv")
 
 #endemics <- unique(StudyAreaSpecies_subset3$Scientific_Name) %>% as.data.frame()

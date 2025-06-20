@@ -8,7 +8,7 @@ library(arcgisbinding)
 arc.check_product()
 options(scipen=999) # don't use scientific notation
 
-inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_NVCgrps_GAPsts" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
+inputTabAreaGAP <- "S:/Projects/NPCA/_Year2/Data/Intermediate/TabulateAreaTables_yr2.gdb/TabArea_NVCgrps_GAPsts_20250219" # UPDATE Input Tabulate Area table - Managed Lands or GAP status focused
 inputTabAreaGAP <- arc.open(inputTabAreaGAP)
 inputTabAreaGAP <- arc.select(inputTabAreaGAP)
 inputTabAreaGAP <- as.data.frame(inputTabAreaGAP)
@@ -18,10 +18,12 @@ inputTabAreaManaged <- arc.open(inputTabAreaManaged)
 inputTabAreaManaged <- arc.select(inputTabAreaManaged)
 inputTabAreaManaged <- as.data.frame(inputTabAreaManaged)
 
-inputRaster <- "S:/Projects/NPCA/Data/Intermediate/NationalAnalysis.gdb/Landfire_EVT_2020_IVC_join_2023" #
-inputRaster <- arc.open(inputRaster)
-inputRaster <- arc.select(inputRaster)
-inputRaster <- as.data.frame(inputRaster)
+# inputRaster <- "S:/Projects/NPCA/Data/Intermediate/NationalAnalysis.gdb/Landfire_EVT_2020_IVC_join_2023" #
+# inputRaster <- arc.open(inputRaster)
+# inputRaster <- arc.select(inputRaster)
+# inputRaster <- as.data.frame(inputRaster)
+
+inputRaster <- read.csv("S:/Data/NatureServe/Ecosystem_Terrestrial/IVC_GroupsMap_v0pt94/IVCgroups_v0pt946_fields.csv")
 
 inputTabAreaGAP$OBJECTID <- NULL
 inputTabAreaManaged$OBJECTID <- NULL
@@ -42,8 +44,8 @@ inputTabAreaGAP$GAPstatus <- as.integer(substring(inputTabAreaGAP$GAPstatus, 1, 
 
 # this enables verification of Naturalness in a later step
 inputTabAreaGAP <- left_join(inputTabAreaGAP, 
-                             select(inputRaster, IVC_NAME, ROUNDED_G_RANK, Naturalnes), 
-                             by = c("IVC_Name" = "IVC_NAME"),
+                             select(inputRaster, GroupNam, ELCODE, RdGrank, Natural_), 
+                             by = c("GroupNam" = "GroupNam"),
                              suffix = c("_x", "_y"),
                              relationship = "many-to-many")
 
@@ -59,44 +61,44 @@ for(i in 1:length(lstStudyAreas)){
   print(paste("working on ", lstStudyAreas[i], sep=""))
   StudyArea_subset <- inputTabAreaGAP[which(inputTabAreaGAP$StudyArea==lstStudyAreas[i]),]
   
-  #lstGroups_subset <- unique(StudyArea_subset[which(StudyArea_subset$Naturalnes=="Natural"),"IVC_Name"] )
-  lstGroups_subset <- unique(StudyArea_subset$IVC_Name)
+  #lstGroups_subset <- unique(StudyArea_subset[which(StudyArea_subset$Naturalnes=="Natural"),"GroupNam"] )
+  lstGroups_subset <- unique(StudyArea_subset$GroupNam)
   
   # create an empty data frame
   StudyAreaGroup_subsetComb <- inputTabAreaGAP[0,]
   
   for(j in 1:length(lstGroups_subset)){  #
     print(paste("working on ", lstGroups_subset[j], sep=""))
-    StudyAreaGroup_subset <- inputTabAreaGAP[which(inputTabAreaGAP$IVC_Name==lstGroups_subset[j]),]
+    StudyAreaGroup_subset <- inputTabAreaGAP[which(inputTabAreaGAP$GroupNam==lstGroups_subset[j]),]
     StudyAreaGroup_subset[which(StudyAreaGroup_subset$StudyArea!=lstStudyAreas[i]),"StudyArea"] <- NA
     
     StudyAreaGroup_subsetComb <- rbind(StudyAreaGroup_subsetComb, StudyAreaGroup_subset)
     
     StudyAreaGroup_subset1 <- StudyAreaGroup_subsetComb %>%
-      group_by( StudyArea, Protected, GAPstatus, IVC_Name, ROUNDED_G_RANK) %>% #NPCA_status_GAP_StudyArea,
+      group_by( StudyArea, Protected, GAPstatus, GroupNam, RdGrank) %>% #NPCA_status_GAP_StudyArea,
       summarise(TotalArea = sum(Area)) %>% 
       ungroup()
     
     StudyAreaGroup_subset2 <- StudyAreaGroup_subset1 %>%
-      group_by(IVC_Name) %>%
+      group_by(GroupNam) %>%
       mutate(PercentArea =   (TotalArea / sum(TotalArea)*100) ) %>%
       mutate(TotalArea2 = if_else(is.na(StudyArea), -TotalArea, TotalArea)) %>%
       mutate(PercentArea2 = if_else(is.na(StudyArea), -PercentArea, PercentArea))
     
     StudyAreaGroup_subset3 <- StudyAreaGroup_subset2 %>%
-      group_by(IVC_Name) %>%
+      group_by(GroupNam) %>%
       mutate(TotalPosPercent =sum(PercentArea2[PercentArea2>0]))
     
-    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>10),]
+    StudyAreaGroup_subset3 <- StudyAreaGroup_subset3[which(StudyAreaGroup_subset3$TotalPosPercent>2),]
     
-    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name, " (", StudyAreaGroup_subset3$ROUNDED_G_RANK, ")") 
+    StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$GroupNam, " (", StudyAreaGroup_subset3$RdGrank, ")") 
     #StudyAreaGroup_subset3$axislable <- paste0(StudyAreaGroup_subset3$IVC_Name) 
     StudyAreaGroup_subset3$GAPstatus <- paste0("GAP",StudyAreaGroup_subset3$GAPstatus)
     StudyAreaGroup_subset3$GAPstatus[which(StudyAreaGroup_subset3$GAPstatus=="GAPNA")] <- "Unprotected"
     StudyAreaGroup_subset3$GAPstatus <- factor(StudyAreaGroup_subset3$GAPstatus, levels = c("Unprotected","GAP4","GAP3","GAP2","GAP1"))
     
     
-    StudyAreaGroup_subset3 %>%
+    p <- StudyAreaGroup_subset3 %>%
       ggplot(aes(x = reorder(axislable, TotalPosPercent),
                  y = PercentArea2,
                  fill = GAPstatus)) +
@@ -108,16 +110,22 @@ for(i in 1:length(lstStudyAreas)){
       scale_y_continuous(limits = c(-100, 100), breaks=c(-100,-75,-50,-25, 0, 25,50,75,100), labels=c("100%","75%","50%","25%", "0%", "25%","50%","75%","100%")) +
       scale_fill_manual(values=c("#b1b1b1","#bed5cf","#659fb5","#869447","#27613b"), guide = guide_legend(reverse = TRUE)) +
       theme_minimal() +
-      theme(panel.grid = element_blank(),
-            legend.title=element_blank(),
-            axis.title = element_blank(),
-            legend.position = "none",
-            plot.title.position = "plot")
+      theme(
+        panel.grid = element_blank(),
+        legend.title = element_blank(),
+        axis.title = element_blank(),
+        legend.position = "none",
+        # plot.title = element_text(color = "white"),  # White title text
+        # axis.text = element_text(color = "white"),  # White axis text
+        # axis.ticks = element_line(color = "white"), # White axis ticks
+        # legend.text = element_text(color = "white") # White legend text
+      )
+    plot(p)
   }
 }
 plot(p)
-ggsave(paste0("NorthCascades_IVCgroups_top5pct_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
-write.csv(StudyAreaGroup_subset3, "S:/Projects/NPCA/_Year2/Data/Intermediate/GreaterEverglades/NVCgroups_10pctOverlap_GreaterEverglades.csv")
+ggsave(paste0("NorthCascades_IVCgroups_GAPsts.png"), plot = p, bg = "transparent",dpi = 300)
+write.csv(StudyAreaGroup_subset3, "S:/Projects/NPCA/_Year2/Data/Intermediate/NorthCascades/Tables/NVCgroups_NorthCascades.csv")
 
 #-----------------------------------------------------------------------
 ### Repeat the above steps for results summarized by Manager Name
